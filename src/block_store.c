@@ -8,6 +8,16 @@
 // remove it before you submit. Just allows things to compile initially.
 #define UNUSED(x) (void)(x)
 
+// Declaring the struct but not implementing in the header allows us to prevent users
+// from using the object directly and monkeying with the contents
+// They can only create pointers to the struct, which must be given out by us
+// This enforces a black box device, but it can be restricting
+typedef struct block_store {
+    bitmap_t *bitmap;
+    // available blocks and size in bytes
+    char * block_data[BLOCK_STORE_AVAIL_BLOCKS][BLOCK_SIZE_BYTES];
+} block_store_t;
+
 block_store_t *block_store_create()
 {
     return NULL;
@@ -61,7 +71,7 @@ size_t block_store_read(const block_store_t *const bs, const size_t block_id, vo
     }
 
     // copys data into buffer
-    if(!memcpy(buffer, bsS->block_data[block_id], BLOCK_SIZE_BYTES)){
+    if(!memcpy(buffer, bs->block_data[block_id], BLOCK_SIZE_BYTES)){
         return 0;
     }
 
