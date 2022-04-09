@@ -22,6 +22,12 @@ stdlib.h
 stdbool.h
 -
 
+/homes/ruffini/CIS520Project3/src/bitmap.c
+bitmap.h
+/homes/ruffini/CIS520Project3/src/bitmap.h
+string.h
+-
+
 /homes/ruffini/CIS520Project3/src/block_store.c
 stdio.h
 -
@@ -29,6 +35,10 @@ stdint.h
 -
 bitmap.h
 /homes/ruffini/CIS520Project3/src/bitmap.h
+bitmap.c
+/homes/ruffini/CIS520Project3/src/bitmap.c
 block_store.h
 /homes/ruffini/CIS520Project3/src/block_store.h
+string.h
+-
 

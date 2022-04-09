@@ -3,5 +3,6 @@
 
 CMakeFiles/block_store.dir/src/block_store.c.o: ../include/bitmap.h
 CMakeFiles/block_store.dir/src/block_store.c.o: ../include/block_store.h
+CMakeFiles/block_store.dir/src/block_store.c.o: ../src/bitmap.c
 CMakeFiles/block_store.dir/src/block_store.c.o: ../src/block_store.c
 
