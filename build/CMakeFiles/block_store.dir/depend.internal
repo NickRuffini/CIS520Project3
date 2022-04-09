@@ -4,4 +4,5 @@
 CMakeFiles/block_store.dir/src/block_store.c.o
  ../include/bitmap.h
  ../include/block_store.h
+ /homes/ruffini/CIS520Project3/src/bitmap.c
  /homes/ruffini/CIS520Project3/src/block_store.c

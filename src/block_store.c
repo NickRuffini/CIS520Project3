@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "bitmap.h"
+#include "bitmap.c"
 #include "block_store.h"
+#include <string.h>
 // include more if you need
 
 // You might find this handy.  I put it around unused parameters, but you should
@@ -20,12 +22,27 @@ typedef struct block_store {
 
 block_store_t *block_store_create()
 {
-    return NULL;
+    block_store_t* new_block_storage = (block_store_t*)malloc(sizeof(block_store_t));
+    
+    // Check to see if our memory allocation failed! If not, continue
+    if (new_block_storage == NULL) {
+        return NULL;
+    }
+    
+    new_block_storage->bitmap = bitmap_create(BITMAP_SIZE_BYTES);
+    
+    return new_block_storage;
 }
 
 void block_store_destroy(block_store_t *const bs)
 {
-    UNUSED(bs);
+    if (bs == NULL || bs->bitmap == NULL) {
+        return;
+    }
+    
+    bitmap_destroy(bs->bitmap);
+    free(bs);
+    return;
 }
 size_t block_store_allocate(block_store_t *const bs)
 {
