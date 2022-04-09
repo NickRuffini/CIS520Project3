@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 #include "bitmap.h"
 #include "block_store.h"
 // include more if you need
@@ -27,23 +28,106 @@ void block_store_destroy(block_store_t *const bs)
 {
     UNUSED(bs);
 }
+
+///
+/// Searches for a free block, marks it as in use, and returns the block's id
+/// \param bs BS device
+/// \return Allocated block's id, SIZE_MAX on error
+///
 size_t block_store_allocate(block_store_t *const bs)
 {
-    UNUSED(bs);
-    return 0;
+    // Checking all parameters to ensure all are valid
+    if (bs != NULL)
+    {
+        if (bs->bitmap!=NULL)
+        {
+            // Finding the first zero so we can allocate an unused block.
+            size_t toAllocate = bitmap_ffz(bs->bitmap);
+            // Making sure there is a zero.
+            if (toAllocate != SIZE_MAX)
+            {
+                // Flipping the bit in the bitmap to reflect it being in use.
+                bitmap_flip(bs->bitmap, toAllocate);
+                // Allocating the memory to the array in the appropriate block.
+                bs->block_data[toAllocate][0] = malloc(BLOCK_SIZE_BITS);
+                // Ensuring it doesn't return NULL (have an error in allocation)
+                if (bs->block_data[toAllocate][0] != NULL)
+                {
+                    // Return this indicating a success
+                    return toAllocate;
+                }
+                else
+                {
+                    // If it does fail, we should flip this back as we are not using it.
+                    bitmap_flip(bs->bitmap, toAllocate);
+                }
+            }
+        }
+    }
+    // Return this indicating a failure.
+    return SIZE_MAX;
 }
 
+///
+/// Attempts to allocate the requested block id
+/// \param bs the block store object
+/// \block_id the requested block identifier
+/// \return boolean indicating succes of operation
+///
 bool block_store_request(block_store_t *const bs, const size_t block_id)
 {
-    UNUSED(bs);
-    UNUSED(block_id);
+     // Checking all parameters to ensure all are valid
+    if (bs != NULL)
+    {
+        if (block_id > 0 && block_id < BLOCK_STORE_NUM_BLOCKS)
+        {
+            // Checking in the bitmap to see if the requested block is in use.
+            if(!bitmap_test(bs->bitmap, block_id))
+            {
+                // Flipping the bitmap as it is now in use.
+                bitmap_flip(bs->bitmap, block_id);
+                // Allocating the appropriate block.
+                bs->block_data[block_id][0] = malloc(BLOCK_SIZE_BITS);
+                // Making sure the allocation succeeds.
+                if (bs->block_data[block_id][0] != NULL)
+                {
+                    // Returning this indicating a success.
+                    return true;
+                }
+                else
+                {
+                    // If the allocation fails, flipping this back as we are not using it.
+                    bitmap_flip(bs->bitmap, block_id);
+                }
+            }
+        }
+    }
+    // Returning this indicating a failure.
     return false;
 }
 
+///
+/// Frees the specified block
+/// \param bs BS device
+/// \param block_id The block to free
+///
 void block_store_release(block_store_t *const bs, const size_t block_id)
 {
-    UNUSED(bs);
-    UNUSED(block_id);
+    // Checking all parameters to ensure all are valid
+    if(bs != NULL)
+    {
+        if (block_id > 0 && block_id < BLOCK_STORE_NUM_BLOCKS && bs->bitmap != NULL && bs->block_data != NULL)
+        {
+            // Checking if the bitmap was already flipped.
+            if (bitmap_test(bs->bitmap, block_id))
+            {
+                // If it was, flip it.
+                bitmap_flip(bs->bitmap, block_id);
+            }
+            // Freeing the block.
+            free(bs->block_data[block_id]);
+        }
+    }
 }
 
 size_t block_store_get_used_blocks(const block_store_t *const bs)
@@ -58,9 +142,15 @@ size_t block_store_get_free_blocks(const block_store_t *const bs)
     return 0;
 }
 
+///
+/// Returns the total number of user-addressable blocks
+///  (since this is constant, you don't even need the bs object)
+/// \return Total blocks
+///
 size_t block_store_get_total_blocks()
 {
-    return 0;
+    // The total blocks should always be the value in BLOCK_STORE_NUM_BLOCKS.
+    return BLOCK_STORE_NUM_BLOCKS;
 }
 
 size_t block_store_read(const block_store_t *const bs, const size_t block_id, void *buffer)
