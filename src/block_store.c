@@ -32,7 +32,11 @@ block_store_t *block_store_create()
     }
     
     // Initializes our block store's bitmap!
-    new_block_storage->bitmap = bitmap_create(BITMAP_SIZE_BYTES);
+    new_block_storage->bitmap = bitmap_create(BLOCK_STORE_AVAIL_BLOCKS);
+    if (new_block_storage->bitmap == NULL)
+    {
+        return NULL;
+    }
     
     //new_block_storage->bitmap = &new_block_storage -> block_data[BITMAP_SIZE_BYTES - 1];
     
@@ -177,7 +181,7 @@ size_t block_store_get_free_blocks(const block_store_t *const bs)
     
     // If everything is good, we can simply subtract the total number of set
     // bits from the total number of block bits to get the ones that aren't set!
-    return BLOCK_SIZE_BITS - bitmap_total_set(bs->bitmap);
+    return BLOCK_STORE_AVAIL_BLOCKS - bitmap_total_set(bs->bitmap);
 }
 
 ///
@@ -188,7 +192,7 @@ size_t block_store_get_free_blocks(const block_store_t *const bs)
 size_t block_store_get_total_blocks()
 {
     // The total blocks should always be the value in BLOCK_STORE_NUM_BLOCKS.
-    return BLOCK_STORE_NUM_BLOCKS;
+    return BLOCK_STORE_AVAIL_BLOCKS;
 }
 
 size_t block_store_read(const block_store_t *const bs, const size_t block_id, void *buffer)
