@@ -33,6 +33,8 @@ stdio.h
 -
 stdint.h
 -
+string.h
+-
 bitmap.h
 /homes/ruffini/CIS520Project3/src/bitmap.h
 bitmap.c

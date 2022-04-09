@@ -23,6 +23,7 @@ typedef struct block_store {
 
 block_store_t *block_store_create()
 {
+    // Allocate memory for our block store
     block_store_t* new_block_storage = (block_store_t*)malloc(sizeof(block_store_t));
     
     // Check to see if our memory allocation failed! If not, continue
@@ -30,17 +31,23 @@ block_store_t *block_store_create()
         return NULL;
     }
     
+    // Initializes our block store's bitmap!
     new_block_storage->bitmap = bitmap_create(BITMAP_SIZE_BYTES);
+    
+    //new_block_storage->bitmap = &new_block_storage -> block_data[BITMAP_SIZE_BYTES - 1];
     
     return new_block_storage;
 }
 
 void block_store_destroy(block_store_t *const bs)
 {
+    // Checks to see if our parameters we are passed are invalid! In this case,
+    // simply return so we don't do anything else
     if (bs == NULL || bs->bitmap == NULL) {
         return;
     }
     
+    // Invokes the bitmap_destory on our block store's bitmap
     bitmap_destroy(bs->bitmap);
     free(bs);
     return;
@@ -149,14 +156,28 @@ void block_store_release(block_store_t *const bs, const size_t block_id)
 
 size_t block_store_get_used_blocks(const block_store_t *const bs)
 {
-    UNUSED(bs);
-    return 0;
+    // Check to see if our parameter is faulty; if it is, per the header file,
+    // return SIZE_MAX!
+    if (bs == NULL) {
+        return SIZE_MAX;
+    }
+    
+    // If everything is good, use an existing bitmap function to return the 
+    // used blocks
+    return bitmap_total_set(bs->bitmap);
 }
 
 size_t block_store_get_free_blocks(const block_store_t *const bs)
 {
-    UNUSED(bs);
-    return 0;
+    // Check to see if our parameter is faulty; if it is, per the header file,
+    // return SIZE_MAX!
+    if (bs == NULL) {
+        return SIZE_MAX;
+    }
+    
+    // If everything is good, we can simply subtract the total number of set
+    // bits from the total number of block bits to get the ones that aren't set!
+    return BLOCK_SIZE_BITS - bitmap_total_set(bs->bitmap);
 }
 
 ///
